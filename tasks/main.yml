@@ -2,6 +2,12 @@
 - name: Check for FQDN variable presence
   fail:
     msg: "FQDN variable is not set!"
+  when: fqdn|default(False) == False
+
+- name: Check for hostname variable presence
+  fail:
+    msg: "FQDN variable is not set!"
+  when: hostname|default(False) == False
 
 - include: debian.yml
   when: ansible_os_family == 'Debian'
