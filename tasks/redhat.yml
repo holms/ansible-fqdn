@@ -1,0 +1,8 @@
+- name: Redhat | Update sysconfig if doesn't exist
+  shell:  echo -e "NETWORKING=yes\nHOSTNAME={{ fqdn }}\n" > /etc/sysconfig/network
+  args:
+    creates: /etc/sysconfig/network
+
+- name: Redhat | Replace defaults in sysconfig
+  replace: dest=/etc/sysconfig/network regexp="HOSTNAME\=localhost\.localdomain" replace="HOSTNAME={{ fqdn }}"
+

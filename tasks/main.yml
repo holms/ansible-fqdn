@@ -1,0 +1,13 @@
+---
+- name: Check for FQDN variable presence
+  fail:
+    msg: "FQDN variable is not set!"
+
+- include: debian.yml
+  when: ansible_os_family == 'Debian'
+
+- include: redhat.yml
+  when: ansible_os_family == 'Redhat'
+
+- include: default.yml
+

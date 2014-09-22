@@ -1,0 +1,22 @@
+---
+galaxy_info:
+    author: Roman Gorodeckij
+    description: Set FQDN and hostname
+    license: MIT
+    min_ansible_version: 1.6
+    platforms:
+        - name: EL
+          versions:
+              - all
+        - name: Ubuntu
+          versions:
+              - all
+        - name: Debian
+          versions:
+              - all
+    categories:
+        - networking
+        - system
+
+dependencies: []
+
