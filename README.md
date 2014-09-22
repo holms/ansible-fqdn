@@ -1,4 +1,4 @@
-fqdn
+fqdn [![Build Status](https://travis-ci.org/holms/ansible-fqdn.svg?branch=master)](https://travis-ci.org/holms/ansible-fqdn)
 ====
 
 Sets Fully qualified domain name (FQDN)
