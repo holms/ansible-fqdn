@@ -18,8 +18,11 @@ Ansible version 1.6
 Role Variables
 --------------
 
- * *hostname* - new hostname (not FQDN, before first dot)
- * *fqdn* - new domain name
+
+|Variable name | Variable value
+|--------------|---------------
+|*hostname*    |new hostname (not FQDN, before first dot)
+|*fqdn*        | new domain name
 
 Example
 -------
@@ -41,4 +44,3 @@ Author Information
 ------------------
 
 Roman Gorodeckij (<holms@holms.lt>)
-
