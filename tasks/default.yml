@@ -1,7 +1,4 @@
 ---
-- name: Put fqdn to /etc/hostname
-  copy: dest=/etc/hostname content={{ fqdn }}
-
 - name: Set Hostname with hostname command
   hostname: name="{{ hostname }}"
 
