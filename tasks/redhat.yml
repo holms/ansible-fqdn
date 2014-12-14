@@ -1,6 +1,3 @@
+---
 - name: Redhat | Update sysconfig
-  shell:  echo -e "NETWORKING=yes\nHOSTNAME={{ fqdn }}\n" > /etc/sysconfig/network
-
-- name: Redhat | Replace defaults in sysconfig
-  replace: dest=/etc/sysconfig/network regexp="HOSTNAME\=localhost\.localdomain" replace="HOSTNAME={{ fqdn }}"
-
+  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ fqdn }}" regexp="HOSTNAME="
