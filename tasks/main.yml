@@ -10,10 +10,10 @@
   when: hostname|default(False) == False
 
 - include: debian.yml
-  when: ansible_distribution in [ 'Debian' ]
+  when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
 
 - include: redhat.yml
-  when: ansible_distribution in [ 'RedHat' ]
+  when: ansible_distribution in [ 'RedHat', 'CentOS' ]
 
 - include: default.yml
 
