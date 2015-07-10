@@ -6,7 +6,7 @@
 
 - name: Check for hostname variable presence
   fail:
-    msg: "FQDN variable is not set!"
+    msg: "Hostname variable is not set!"
   when: hostname|default(False) == False
 
 - include: debian.yml
