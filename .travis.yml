@@ -3,9 +3,7 @@ language: python
 python: "2.7"
 
 env:
-    - ANSIBLE_VERSION=1.6
-    - ANSIBLE_VERSION=1.7
-    - ANSIBLE_VERSION=1.9
+    - ANSIBLE_VERSION=1.9.4
 
 install:
     # Install Ansible
