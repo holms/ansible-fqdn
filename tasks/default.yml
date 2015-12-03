@@ -10,6 +10,11 @@
 # Will include all hosts the playbook is run on.
 # Credits to rothgar: https://gist.github.com/rothgar/8793800
 - name: Build hosts file (backups will be made)
-  lineinfile: dest=/etc/hosts regexp='{{ hostvars[item].ansible_hostname }}$' line='{{ hostvars[item].ansible_default_ipv4.address }} {{ item }} {{ hostvars[item].ansible_hostname }}' state=present backup=yes
+  lineinfile: dest=/etc/hosts line='{{ hostvars[item].ansible_default_ipv4.address }} {{ hostvars[item].ansible_hostname }}  {{ item }}' state=present backup=yes
   when: hostvars[item].ansible_default_ipv4.address is defined
   with_items: groups['all']
+
+- name: restart hostname
+  service: name=hostname state=restarted
+  async: 45
+  poll: 0
