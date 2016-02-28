@@ -14,6 +14,9 @@ galaxy_info:
         - name: Debian
           versions:
               - all
+        - name: Windows
+          versions:
+              - all
     categories:
         - networking
         - system
