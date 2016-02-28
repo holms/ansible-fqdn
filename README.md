@@ -14,6 +14,7 @@ Ansible version 1.6+
 * Debian
 * Centos
 * Redhat
+* Windows
 
 Role Variables
 --------------
