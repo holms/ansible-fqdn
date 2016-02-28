@@ -1,19 +1,26 @@
 ---
-- name: Check for FQDN variable presence
+- name: fqdn | Check for FQDN variable presence
   fail:
     msg: "FQDN variable is not set!"
   when: fqdn|default(False) == False
 
-- name: Check for hostname variable presence
+- name: fqdn | Check for hostname variable presence
   fail:
     msg: "Hostname variable is not set!"
   when: hostname|default(False) == False
 
-- include: debian.yml
+- name: fqdn | Configure Debian
+  include: debian.yml
   when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
 
-- include: redhat.yml
+- name: fqdn | Configure Redhat
+  include: redhat.yml
   when: ansible_distribution in [ 'RedHat', 'CentOS' ]
 
-- include: default.yml
+- name: fqdn | Configure Linux
+  include: default.yml
+  when: ansible_os_family in  [ "Linux" ]
 
+- name: fqdn | Configure Windows
+  include: windows.yml
+  when: ansible_os_family in  [ "Windows" ]
