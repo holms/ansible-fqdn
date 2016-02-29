@@ -18,9 +18,9 @@
   when: ansible_distribution in [ 'RedHat', 'CentOS' ]
 
 - name: fqdn | Configure Linux
-  include: default.yml
-  when: ansible_os_family in  [ "Linux" ]
+  include: linux.yml
+  when: ansible_system in  [ "Linux" ]
 
 - name: fqdn | Configure Windows
   include: windows.yml
-  when: ansible_os_family in  [ "Windows" ]
+  when: ansible_system in  [ "Win32NT" ]
