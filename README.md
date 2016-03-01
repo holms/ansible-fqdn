@@ -6,7 +6,7 @@ Sets Fully qualified domain name (FQDN)
 Requirements
 ------------
 
-Ansible version 1.6+
+Ansible version 1.7+
 
 ## Platforms
 
@@ -45,3 +45,4 @@ Author Information
 ------------------
 
 Roman Gorodeckij (<holms@holms.lt>)
+John Brooker (jb-github@outlook.com)
