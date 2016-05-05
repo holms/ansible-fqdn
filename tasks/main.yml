@@ -1,14 +1,4 @@
 ---
-- name: fqdn | Check for FQDN variable presence
-  fail:
-    msg: "FQDN variable is not set!"
-  when: fqdn|default(False) == False
-
-- name: fqdn | Check for hostname variable presence
-  fail:
-    msg: "Hostname variable is not set!"
-  when: hostname|default(False) == False
-
 - name: fqdn | Configure Debian
   include: debian.yml
   when: ansible_distribution in [ 'Debian', 'Ubuntu' ]

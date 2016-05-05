@@ -20,10 +20,10 @@ Role Variables
 --------------
 
 
-|Variable name | Variable value
-|--------------|---------------
-|*hostname*    |new hostname (not FQDN, before first dot)
-|*fqdn*        | new domain name
+| Variable name | Variable value | Default |
+|---------------|----------------|---------|
+|*hostname*     | hostname (eg. vm1) | `inventory_hostname_short` |
+|*fqdn*         | domain name (eg. vm1.test.com) | `inventory_hostname` |
 
 Example
 -------
