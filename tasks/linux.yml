@@ -14,3 +14,4 @@
   service: name=hostname state=restarted
   async: 45
   poll: 0
+  when: ansible_distribution in [ 'RedHat', 'CentOS' ]
