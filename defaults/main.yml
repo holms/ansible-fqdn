@@ -1,3 +1,0 @@
----
-fqdn: "{{ inventory_hostname }}"
-hostname: "{{ inventory_hostname_short }}"

@@ -1,17 +1,20 @@
 ---
 - name: Set Hostname with hostname command
-  hostname: name="{{ hostname }}"
+  hostname: name="{{ fqdn }}"
 
 - name: Re-gather facts
   action: setup
   when: ansible_hostname != fqdn
 
+# Idempotent way to build a /etc/hosts file with Ansible using your Ansible hosts inventory for a source.
+# Will include all hosts the playbook is run on.
+# Credits to rothgar: https://gist.github.com/rothgar/8793800
 - name: Build hosts file (backups will be made)
-  lineinfile: dest=/etc/hosts regexp='^{{ ansible_default_ipv4.address }}' line='{{ ansible_default_ipv4.address }} {{ fqdn }} {{ hostname }}' state=present backup=yes
-  when: ansible_default_ipv4.address is defined
+  lineinfile: dest=/etc/hosts line='{{ hostvars[item].ansible_default_ipv4.address }} {{ fqdn }} {{ hostvars[item].ansible_hostname }}' state=present backup=yes
+  when: hostvars[item].ansible_default_ipv4.address is defined
+  with_items: groups['all']
 
 - name: restart hostname
   service: name=hostname state=restarted
   async: 45
   poll: 0
-  when: ansible_distribution not in [ 'RedHat', 'CentOS' ]
