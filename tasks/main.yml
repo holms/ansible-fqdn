@@ -2,20 +2,20 @@
 - name: fqdn | Check for FQDN variable presence
   fail:
     msg: "FQDN variable is not set!"
-  when: fqdn|default(False) == False
+  when: fqdn is not defined
 
 - name: fqdn | Configure Debian
   include: debian.yml
-  when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
+  when: ansible_os_family == 'Debian'
 
 - name: fqdn | Configure Redhat
   include: redhat.yml
-  when: ansible_distribution in [ 'RedHat', 'CentOS' ]
+  when: ansible_os_family == 'RedHat'
 
 - name: fqdn | Configure Linux
   include: linux.yml
-  when: ansible_system in  [ "Linux" ]
+  when: ansible_system in  [ 'Linux' ]
 
 - name: fqdn | Configure Windows
   include: windows.yml
-  when: ansible_system in  [ "Win32NT" ]
+  when: ansible_system in  [ 'Win32NT' ]

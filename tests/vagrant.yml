@@ -1,7 +1,7 @@
 # test file for fqdn
 ---
-- hosts: localhost
-  connection: local
+- hosts: all
+  remote_user: vagrant
   become: true
   pre_tasks:
     - include: pre.yml

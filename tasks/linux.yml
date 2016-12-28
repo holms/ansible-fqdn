@@ -12,9 +12,10 @@
 - name: Build hosts file (backups will be made)
   lineinfile: dest=/etc/hosts line='{{ hostvars[item].ansible_default_ipv4.address }} {{ fqdn }} {{ hostvars[item].ansible_hostname }}' state=present backup=yes
   when: hostvars[item].ansible_default_ipv4.address is defined
-  with_items: groups['all']
+  with_items: "{{ groups['all'] }}"
 
 - name: restart hostname
   service: name=hostname state=restarted
   async: 45
   poll: 0
+  when: ansible_os_family != 'RedHat'
