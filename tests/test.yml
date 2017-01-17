@@ -1,5 +1,12 @@
+# test file for fqdn
 ---
 - hosts: localhost
-  remote_user: root
+  connection: local
+  become: true
+  pre_tasks:
+    - include: pre.yml
   roles:
-      - { role: ansible-fqdn, fqdn: "mx.example.com", hostname: "mx" }
+    - ../../
+  vars:
+    hostname: mx
+    fqdn: mx.example.com
