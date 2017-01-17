@@ -1,6 +1,6 @@
 ---
 - name: fqdn | Set details via powershell script
-  script: files/set_domain.ps1 --NewFQDN "{{ fqdn }}"
+  script: files/set_domain.ps1 --NewName "{{ hostname }}" --NewFQDN "{{ fqdn }}"
 
 - name: fqdn | Re-gather facts
   action: setup

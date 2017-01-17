@@ -1,9 +1,4 @@
 ---
-- name: fqdn | Check for FQDN variable presence
-  fail:
-    msg: "FQDN variable is not set!"
-  when: fqdn is not defined
-
 - name: fqdn | Configure Debian
   include: debian.yml
   when: ansible_os_family == 'Debian'
