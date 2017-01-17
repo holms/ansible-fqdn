@@ -8,4 +8,5 @@
   roles:
     - ../../
   vars:
+    hostname: mx
     fqdn: mx.example.com
