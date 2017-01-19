@@ -7,6 +7,8 @@
     - include: pre.yml
   roles:
     - ../../
+  post_tasks:
+    - include: post.yml
   vars:
     hostname: mx
     fqdn: mx.example.com

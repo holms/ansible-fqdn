@@ -1,0 +1,17 @@
+# handlers file for fqdn
+---
+- name: restart hostname
+  service:
+    name: "hostname{{ '.sh' if (ansible_distribution_release == 'wheezy') else '' }}"
+    state: restarted
+  when: >
+    ansible_os_family != 'RedHat'
+    and ansible_service_mgr != 'systemd'
+
+- name: restart systemd-logind
+  service:
+    name: systemd-logind
+    state: restarted
+  when: >
+    ansible_os_family != 'RedHat'
+    and ansible_service_mgr == 'systemd'
