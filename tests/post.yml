@@ -1,0 +1,13 @@
+# pre test file for fqdn
+---
+- name: post | check hostname
+  command: hostname
+  register: _check_hostname
+  changed_when: false
+  failed_when: _check_hostname.stdout != hostname
+
+- name: post | check hostname -f
+  command: hostname -f
+  register: _check_hostname
+  changed_when: false
+  failed_when: _check_hostname.stdout != fqdn
