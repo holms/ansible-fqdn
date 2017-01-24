@@ -1,3 +1,5 @@
 ---
 - name: Debian | Install dbus
-  apt: name=dbus state=present
+  apt:
+    name: dbus
+    state: present
