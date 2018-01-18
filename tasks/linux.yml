@@ -1,7 +1,7 @@
 ---
 - name: Set Hostname with hostname command
   hostname:
-    name: "{{ fqdn }}"
+    name: "{{ hostname }}"
   notify:
     - restart hostname
     - restart systemd-logind
