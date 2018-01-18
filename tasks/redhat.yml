@@ -1,6 +1,6 @@
 ---
 - name: Redhat | Install libselinux-python
-  yum:
+  package:
     name: libselinux-python
 
 - name: Redhat | Update sysconfig

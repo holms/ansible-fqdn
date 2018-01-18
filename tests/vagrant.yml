@@ -4,11 +4,11 @@
   remote_user: vagrant
   become: true
   pre_tasks:
-    - include: pre.yml
+    - include_tasks: pre.yml
   roles:
     - ../../
   post_tasks:
-    - include: post.yml
+    - include_tasks: post.yml
   vars:
     hostname: mx
     fqdn: mx.example.com
