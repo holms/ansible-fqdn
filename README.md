@@ -24,6 +24,7 @@ Role Variables
 |---------------|----------------|---------|
 |*hostname*     | hostname (eg. vm1) | `inventory_hostname_short` |
 |*fqdn*         | domain name (eg. vm1.test.com) | `inventory_hostname` |
+|*ip_address*         | ip address (eg. 192.168.0.20) | `ansible_default_ipv4.address` |
 
 Example
 -------
