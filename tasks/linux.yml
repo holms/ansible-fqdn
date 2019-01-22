@@ -13,11 +13,11 @@
 - name: Build hosts file (backups will be made)
   lineinfile:
     dest: /etc/hosts
-    regexp: "^{{ ansible_default_ipv4.address }}"
-    line: "{{ ansible_default_ipv4.address }} {{ fqdn }} {{ hostname }}"
+    regexp: "^{{ ip_address }}"
+    line: "{{ ip_address }} {{ fqdn }} {{ hostname }}"
     state: present
     backup: yes
-  when: ansible_default_ipv4.address is defined
+  when: ip_address is defined
   notify:
     - restart hostname
     - restart systemd-logind
