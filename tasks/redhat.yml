@@ -1,7 +1,7 @@
 ---
-- name: Redhat | Install libselinux-python
+- name: Redhat | Install Python libselinux package
   yum:
-    name: libselinux-python
+    name: "{{ ( (ansible_facts.distribution_major_version | int) < 8) | ternary('libselinux-python','python3-libselinux') }}"
 
 - name: Redhat | Update sysconfig
   lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ fqdn }}" regexp="HOSTNAME="
