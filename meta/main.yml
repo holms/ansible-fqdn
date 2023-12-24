@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+    role_name: fqdn
+    namespace: holms
     author: Roman Gorodeckij
     description: Set FQDN and hostname
     license: MIT
@@ -20,6 +22,4 @@ galaxy_info:
     categories:
         - networking
         - system
-
-dependencies: []
-
+    dependencies: {}
