@@ -5,7 +5,7 @@ galaxy_info:
     author: Roman Gorodeckij
     description: Set FQDN and hostname
     license: MIT
-    min_ansible_version: 2.0
+    min_ansible_version: 2.4
     platforms:
         - name: EL
           versions:

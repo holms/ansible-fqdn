@@ -6,7 +6,7 @@ Sets Fully qualified domain name (FQDN)
 Requirements
 ------------
 
-Ansible version 2.0+
+Ansible version 2.4+
 
 ## Platforms
 
