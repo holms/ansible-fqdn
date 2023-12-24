@@ -4,11 +4,11 @@
   connection: local
   become: true
   pre_tasks:
-    - include: pre.yml
+    - import_tasks: pre.yml
   roles:
     - ../../
   post_tasks:
-    - include: post.yml
+    - import_tasks: post.yml
   vars:
     hostname: mx
     fqdn: mx.example.com

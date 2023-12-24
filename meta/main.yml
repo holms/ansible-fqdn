@@ -1,9 +1,11 @@
 ---
 galaxy_info:
+    role_name: fqdn
+    namespace: holms
     author: Roman Gorodeckij
     description: Set FQDN and hostname
     license: MIT
-    min_ansible_version: 2.0
+    min_ansible_version: 2.4
     platforms:
         - name: EL
           versions:
@@ -20,6 +22,4 @@ galaxy_info:
     categories:
         - networking
         - system
-
-dependencies: []
-
+    dependencies: {}
