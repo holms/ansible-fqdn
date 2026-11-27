@@ -34,6 +34,7 @@ Configure a system hostname and FQDN name resolution on Linux and Windows.
 | `fqdn_manage_etc_hosts` | `true` | Manage a marked block in `/etc/hosts`. |
 | `fqdn_manage_cloud_init` | `false` | Write cloud-init configuration to preserve the hostname and disable cloud-init management of `/etc/hosts`. |
 | `fqdn_manage_ipv6` | `false` | Add the host's `default_ipv6` address to `/etc/hosts` alongside the IPv4 entries. |
+| `fqdn_loopback_entry` | `true` | Add a `127.0.1.1` entry after the real addresses, following the Debian installer convention: the hostname keeps a stable local resolution even if the primary address goes stale. Set to `false` to disable. |
 | `fqdn_unsafe_writes` | `false` | Permit unsafe writes for bind-mounted `/etc/hosts` and `/etc/hostname` files, as found in containers. |
 | `fqdn_redhat_install_selinux_python` | `true` | Install SELinux Python bindings on RedHat-family systems. |
 | `fqdn_windows_reboot` | `false` | Reboot Windows automatically when required. Requires the `ansible.windows` collection. |
@@ -73,8 +74,11 @@ This writes both the IPv4 and IPv6 addresses of the host to `/etc/hosts`:
 
 ```
 192.0.2.10 web01.example.com web01
+127.0.1.1 web01.example.com web01
 2001:db8::10 web01.example.com web01
 ```
+
+The real addresses come first because `/etc/hosts` resolution is first-match-wins; the `127.0.1.1` line is a stable fallback, not an override. If the machine has no default IPv4 address, only `127.0.1.1` is written. Set `fqdn_loopback_entry: false` to omit it.
 
 Windows:
 

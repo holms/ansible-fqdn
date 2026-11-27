@@ -32,6 +32,7 @@
           - fqdn_etc_hosts.content | b64decode is search('END ansible-fqdn')
           - fqdn_etc_hosts.content | b64decode is search(fqdn ~ ' ' ~ hostname)
           - fqdn_etc_hosts.content | b64decode is search('fd00:42::1 ' ~ fqdn ~ ' ' ~ hostname)
+          - fqdn_etc_hosts.content | b64decode is search('127.0.1.1 ' ~ fqdn ~ ' ' ~ hostname)
           - "fqdn_cloud_init_config.content | b64decode is search('preserve_hostname: true')"
           - "fqdn_cloud_init_config.content | b64decode is search('manage_etc_hosts: false')"
         fail_msg: Hostname or hosts configuration did not match expected values.

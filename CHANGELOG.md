@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `fqdn_loopback_entry` (default `true`): writes a `127.0.1.1` entry with the FQDN and hostname after the real addresses, following the Debian installer convention. The real addresses stay first because `/etc/hosts` resolution is first-match-wins. Set to `false` to disable.
+
 ## v2.1.0 (2026-11-27)
 
 ### Added
