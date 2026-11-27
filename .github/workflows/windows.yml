@@ -1,0 +1,80 @@
+---
+name: Windows
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  schedule:
+    # Weekly run to catch upstream breakage (Ansible, runner images).
+    - cron: "23 6 * * 1"
+
+jobs:
+  windows:
+    # The runner itself is the managed host: it is a throwaway VM, and the
+    # pending rename never takes effect because the job never reboots.
+    # Ansible cannot run natively on Windows, so the controller runs in WSL.
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Create local admin user for Ansible
+        shell: powershell
+        run: |
+          $random = [guid]::NewGuid().ToString("N").Substring(0, 16)
+          $password = "FqdnCI${random}9!"
+          Write-Output "::add-mask::$password"
+          $secure = ConvertTo-SecureString $password -AsPlainText -Force
+          New-LocalUser -Name ansible-fqdn-ci -Password $secure -PasswordNeverExpires | Out-Null
+          Add-LocalGroupMember -Group Administrators -Member ansible-fqdn-ci
+          # Allow local accounts other than the built-in Administrator over WinRM.
+          $tokenFilterPath = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+          New-ItemProperty -Path $tokenFilterPath -Name LocalAccountTokenFilterPolicy -Value 1 -PropertyType DWORD -Force | Out-Null
+          # WSL does not inherit Windows environment variables; pass the
+          # password through the workspace instead.
+          Set-Content -Path "$env:GITHUB_WORKSPACE\.ci-windows-password" -Value $password -NoNewline
+
+      - name: Configure WinRM for Ansible
+        # Windows PowerShell 5.1, not pwsh: the upstream script relies on a
+        # mutable X509Certificate object that .NET Core rejects. The script is
+        # pinned to a commit SHA because it has no version tags.
+        shell: powershell
+        run: |
+          $sha = "b8cf495929aa200a11abc7468d1fb6cd9c0e1613"
+          $url = "https://raw.githubusercontent.com/ansible/ansible-documentation/$sha/examples/scripts/ConfigureRemotingForAnsible.ps1"
+          $scriptBlock = [ScriptBlock]::Create((New-Object System.Net.WebClient).DownloadString($url))
+          & $scriptBlock -Verbose -ForceNewSSLCert 4>&1
+
+      - name: Set up WSL controller
+        uses: Vampire/setup-wsl@v7.2.0
+        with:
+          distribution: Ubuntu-24.04
+          additional-packages: python3 python3-venv git
+
+      - name: Install Ansible in WSL
+        shell: wsl-bash {0}
+        run: |
+          python3 -m venv ~/ansible-venv
+          ~/ansible-venv/bin/pip install --quiet --upgrade pip
+          ~/ansible-venv/bin/pip install --quiet ansible-core pypsrp
+          ~/ansible-venv/bin/ansible-galaxy collection install ansible.windows
+
+      - name: Run Windows integration test
+        shell: wsl-bash {0}
+        run: |
+          set -eu
+          cp -r "$(wslpath -u '${{ github.workspace }}')" ~/ansible-fqdn
+          cd ~/ansible-fqdn
+          export WINDOWS_CI_PASSWORD="$(cat .ci-windows-password)"
+          rm .ci-windows-password
+          # Expose the repository as the installable role name holms.fqdn.
+          mkdir -p ~/ci-roles
+          ln -sfn ~/ansible-fqdn ~/ci-roles/holms.fqdn
+          export ANSIBLE_ROLES_PATH="$HOME/ci-roles"
+          # In WSL2 NAT mode the Windows host is the default gateway.
+          export WINDOWS_CI_HOST="$(ip route show default | awk '{print $3}')"
+          echo "Connecting to Windows host at $WINDOWS_CI_HOST"
+          ~/ansible-venv/bin/ansible-playbook -i tests/windows/inventory.yml tests/windows/test.yml -vv
