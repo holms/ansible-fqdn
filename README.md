@@ -1,5 +1,7 @@
 # ansible-fqdn
 
+[![Galaxy](https://img.shields.io/badge/dynamic/json?label=galaxy&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F12355%2F&query=summary_fields.versions%5B0%5D.name&logo=ansible)](https://galaxy.ansible.com/holms/fqdn)
+[![Galaxy downloads](https://img.shields.io/badge/dynamic/json?label=downloads&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F12355%2F&query=download_count&logo=ansible)](https://galaxy.ansible.com/holms/fqdn)
 [![Molecule](https://github.com/holms/ansible-fqdn/actions/workflows/molecule.yml/badge.svg)](https://github.com/holms/ansible-fqdn/actions/workflows/molecule.yml)
 
 Configure a system hostname and FQDN name resolution on Linux and Windows.
@@ -10,6 +12,7 @@ Configure a system hostname and FQDN name resolution on Linux and Windows.
 - Linux: no extra collections required
 - Windows: the `ansible.windows` collection is required only when `fqdn_windows_reboot` is enabled
 - Tests: the `containers.podman` collection is installed by Molecule
+- Test tooling: Python >= 3.13 is required by the pinned `ansible-core` 2.22 test environment
 
 ## Platforms
 
