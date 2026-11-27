@@ -3,6 +3,7 @@
 [![Galaxy](https://img.shields.io/badge/dynamic/json?label=galaxy&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F12355%2F&query=summary_fields.versions%5B0%5D.name&logo=ansible)](https://galaxy.ansible.com/holms/fqdn)
 [![Galaxy downloads](https://img.shields.io/badge/dynamic/json?label=downloads&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F12355%2F&query=download_count&logo=ansible)](https://galaxy.ansible.com/holms/fqdn)
 [![Molecule](https://github.com/holms/ansible-fqdn/actions/workflows/molecule.yml/badge.svg)](https://github.com/holms/ansible-fqdn/actions/workflows/molecule.yml)
+[![Windows](https://github.com/holms/ansible-fqdn/actions/workflows/windows.yml/badge.svg)](https://github.com/holms/ansible-fqdn/actions/workflows/windows.yml)
 
 Configure a system hostname and FQDN name resolution on Linux and Windows.
 
