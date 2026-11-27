@@ -91,8 +91,19 @@ jobs:
           # In WSL2 NAT mode the Windows host is the default gateway.
           export WINDOWS_CI_HOST="$(ip route show default | awk '{print $3}')"
           echo "Connecting to Windows host at $WINDOWS_CI_HOST"
-          echo "=== HTTP probe ==="
-          curl -s --max-time 10 -o /dev/null -w "%{http_code}\n" "http://$WINDOWS_CI_HOST:5985/wsman" || echo "http probe failed"
-          echo "=== HTTPS probe ==="
-          curl -sk --max-time 10 -o /dev/null -w "%{http_code}\n" "https://$WINDOWS_CI_HOST:5986/wsman" || echo "https probe failed"
+          # Warm up the connection: the first logon creates the user
+          # profile on the host and can exceed default timeouts.
+          contact=0
+          for attempt in 1 2 3 4 5; do
+            if ~/ansible-venv/bin/ansible windows -i tests/windows/inventory.yml -m ansible.windows.win_ping; then
+              contact=1
+              break
+            fi
+            echo "win_ping attempt $attempt failed, retrying in 15s"
+            sleep 15
+          done
+          if [ "$contact" -ne 1 ]; then
+            echo "Could not reach the Windows host over PSRP"
+            exit 1
+          fi
           ~/ansible-venv/bin/ansible-playbook -i tests/windows/inventory.yml tests/windows/test.yml -vv

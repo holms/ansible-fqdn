@@ -11,3 +11,7 @@ all:
           ansible_password: "{{ lookup('ansible.builtin.env', 'WINDOWS_CI_PASSWORD') }}"
           ansible_psrp_auth: ntlm
           ansible_psrp_cert_validation: ignore
+          # First contact can be slow: the initial logon creates the user
+          # profile and a fresh WinRM session on the host.
+          ansible_psrp_operation_timeout_sec: 60
+          ansible_psrp_read_timeout_sec: 120
