@@ -2,6 +2,10 @@
 - name: Create container instances
   hosts: localhost
   gather_facts: false
+  vars:
+    # Limit the run to hosts matching MOLECULE_PLATFORM (exact name or
+    # '~regex') so CI jobs can test one distro per job. Defaults to all.
+    molecule_platform_regex: "{{ (lookup('ansible.builtin.env', 'MOLECULE_PLATFORM') | default('.*', true)) | regex_replace('^~', '') }}"
   tasks:
     - name: Create containers from inventory
       containers.podman.podman_container:
@@ -16,10 +20,10 @@
         systemd: "{{ hostvars[item]['container_systemd'] | default('true') }}"
         log_driver: "{{ hostvars[item]['container_log_driver'] | default('json-file') }}"
         state: started
-      loop: "{{ groups['molecule'] }}"
+      loop: "{{ groups['molecule'] | select('match', molecule_platform_regex) | list }}"
 
     - name: Wait for containers to be ready
       ansible.builtin.wait_for_connection:
         timeout: 60
       delegate_to: "{{ item }}"
-      loop: "{{ groups['molecule'] }}"
+      loop: "{{ groups['molecule'] | select('match', molecule_platform_regex) | list }}"

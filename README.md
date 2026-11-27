@@ -96,7 +96,7 @@ molecule test
 ansible-lint
 ```
 
-Molecule runs the role against Podman containers for Debian 12, Ubuntu 24.04, and Rocky Linux 9.
+Molecule runs the role against Podman containers for Debian 12 and 13, Ubuntu 24.04, Rocky Linux 9 and 10, and Fedora 42. Set `MOLECULE_PLATFORM` to a single inventory host (for example `molecule-debian13`) to test one distro at a time.
 
 ## License
 

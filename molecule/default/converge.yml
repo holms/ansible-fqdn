@@ -1,6 +1,6 @@
 ---
 - name: Converge
-  hosts: molecule
+  hosts: "{{ lookup('ansible.builtin.env', 'MOLECULE_PLATFORM') | default('molecule', true) }}"
   gather_facts: true
   tasks:
     - name: Apply ansible-fqdn role

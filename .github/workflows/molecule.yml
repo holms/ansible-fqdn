@@ -36,6 +36,16 @@ jobs:
 
   molecule:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - molecule-debian12
+          - molecule-debian13
+          - molecule-ubuntu2404
+          - molecule-rockylinux9
+          - molecule-rockylinux10
+          - molecule-fedora42
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -60,3 +70,37 @@ jobs:
 
       - name: Run Molecule
         run: molecule test
+        env:
+          MOLECULE_PLATFORM: ${{ matrix.platform }}
+
+  molecule-min-ansible:
+    # Verifies the minimum ansible-core version claimed in meta/main.yml.
+    # ansible-core 2.16 does not support Python 3.13 on managed nodes,
+    # so Debian 13 and Fedora 42 are excluded from this job.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman uidmap
+          runner_user="$(id -un)"
+          grep -q "^${runner_user}:" /etc/subuid || echo "${runner_user}:100000:65536" | sudo tee -a /etc/subuid
+          grep -q "^${runner_user}:" /etc/subgid || echo "${runner_user}:100000:65536" | sudo tee -a /etc/subgid
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install molecule==26.11.1 "ansible-core>=2.16.19,<2.17"
+
+      - name: Run Molecule
+        run: molecule test
+        env:
+          MOLECULE_PLATFORM: "~molecule-(debian12|ubuntu2404|rockylinux9|rockylinux10)"
