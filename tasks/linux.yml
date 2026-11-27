@@ -33,11 +33,13 @@
         backup: true
 
 - name: FQDN | Manage /etc/hosts entry
+  # No backup: blockinfile never touches content outside its marked
+  # block, and backups of bind-mounted /etc/hosts files in containers
+  # fail intermittently when chattr attributes cannot be replicated.
   ansible.builtin.blockinfile:
     path: "{{ fqdn_etc_hosts_file }}"
     marker: "# {mark} {{ fqdn_etc_hosts_marker }}"
     block: "{{ lookup('ansible.builtin.template', 'hosts_block.j2') }}"
-    backup: true
     unsafe_writes: "{{ fqdn_unsafe_writes | bool }}"
   when:
     - fqdn_manage_etc_hosts | bool
