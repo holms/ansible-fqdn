@@ -98,6 +98,8 @@ ansible-lint
 
 Molecule runs the role against Podman containers for Debian 12 and 13, Ubuntu 24.04, Rocky Linux 9 and 10, and Fedora 42. Set `MOLECULE_PLATFORM` to a single inventory host (for example `molecule-debian13`) to test one distro at a time.
 
+Windows is tested in CI on a `windows-latest` runner: the runner itself is the managed host and the Ansible controller runs in WSL (see `tests/windows/`).
+
 ## License
 
 MIT
