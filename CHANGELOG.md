@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.1.0 (unreleased)
+## v2.1.0 (2026-11-27)
 
 ### Added
 
@@ -13,6 +13,8 @@
 ### Fixed
 
 - Minimal RedHat-family images without the `hostname` package (for example Fedora 42) no longer fail: runtime hostname reads use gathered facts and `/proc/sys/kernel/hostname` instead of the `hostname` binary.
+- The Windows PowerShell script is now invoked with single-dash parameters as PowerShell requires; the previous GNU-style double dashes broke parameter binding, and the failure was silently hidden because the script exited with code 0. Runtime errors now exit nonzero through an explicit trap.
+- `/etc/hosts` backups were dropped: ansible backup copies replicate chattr attributes, which intermittently fails on bind-mounted files in containers, and the marked `blockinfile` block never touches content outside itself.
 
 ### Changed
 
