@@ -9,16 +9,18 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-        - all
+        - "9"
+        - "10"
     - name: Ubuntu
       versions:
-        - all
+        - noble
     - name: Debian
       versions:
-        - all
+        - bookworm
+        - trixie
     - name: Fedora
       versions:
-        - all
+        - "42"
     - name: Windows
       versions:
         - all

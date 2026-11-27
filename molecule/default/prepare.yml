@@ -1,6 +1,6 @@
 ---
 - name: Prepare
-  hosts: molecule
+  hosts: "{{ lookup('ansible.builtin.env', 'MOLECULE_PLATFORM') | default('molecule', true) }}"
   gather_facts: false
   tasks:
     - name: No preparation required

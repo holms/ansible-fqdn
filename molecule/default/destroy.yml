@@ -2,9 +2,13 @@
 - name: Destroy container instances
   hosts: localhost
   gather_facts: false
+  vars:
+    # Limit the run to hosts matching MOLECULE_PLATFORM (exact name or
+    # '~regex') so CI jobs can test one distro per job. Defaults to all.
+    molecule_platform_regex: "{{ (lookup('ansible.builtin.env', 'MOLECULE_PLATFORM') | default('.*', true)) | regex_replace('^~', '') }}"
   tasks:
     - name: Remove containers
       containers.podman.podman_container:
         name: "{{ item }}"
         state: absent
-      loop: "{{ groups['molecule'] }}"
+      loop: "{{ groups['molecule'] | select('match', molecule_platform_regex) | list }}"
