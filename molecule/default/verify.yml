@@ -1,6 +1,6 @@
 ---
 - name: Verify
-  hosts: molecule
+  hosts: "{{ lookup('ansible.builtin.env', 'MOLECULE_PLATFORM') | default('molecule', true) }}"
   gather_facts: false
   tasks:
     - name: Read container hostname file
@@ -13,10 +13,10 @@
         src: /etc/hosts
       register: fqdn_etc_hosts
 
-    - name: Get runtime hostname
-      ansible.builtin.command: hostname
+    - name: Read runtime hostname
+      ansible.builtin.slurp:
+        src: /proc/sys/kernel/hostname
       register: fqdn_runtime_hostname
-      changed_when: false
 
     - name: Read cloud-init configuration
       ansible.builtin.slurp:
@@ -27,7 +27,7 @@
       ansible.builtin.assert:
         that:
           - fqdn_etc_hostname.content | b64decode | trim == hostname
-          - fqdn_runtime_hostname.stdout == hostname
+          - fqdn_runtime_hostname.content | b64decode | trim == hostname
           - fqdn_etc_hosts.content | b64decode is search('BEGIN ansible-fqdn')
           - fqdn_etc_hosts.content | b64decode is search('END ansible-fqdn')
           - fqdn_etc_hosts.content | b64decode is search(fqdn ~ ' ' ~ hostname)
