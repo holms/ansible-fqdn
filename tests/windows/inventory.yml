@@ -1,0 +1,13 @@
+---
+all:
+  children:
+    windows:
+      hosts:
+        windows-ci:
+          ansible_connection: psrp
+          ansible_host: "{{ lookup('ansible.builtin.env', 'WINDOWS_CI_HOST') | default('localhost', true) }}"
+          ansible_port: 5986
+          ansible_user: ansible-fqdn-ci
+          ansible_password: "{{ lookup('ansible.builtin.env', 'WINDOWS_CI_PASSWORD') }}"
+          ansible_psrp_auth: ntlm
+          ansible_psrp_cert_validation: ignore

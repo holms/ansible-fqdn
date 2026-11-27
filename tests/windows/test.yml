@@ -1,0 +1,65 @@
+---
+# Integration test for the Windows tasks of the ansible-fqdn role.
+# Runs from a Linux controller (WSL in CI) against a Windows host over PSRP.
+# The host is never rebooted, so Rename-Computer results stay pending and
+# idempotence can only be verified for the DNS suffix part.
+- name: Verify DNS suffix idempotence with the current hostname
+  hosts: windows
+  gather_facts: true
+  vars:
+    fqdn: "{{ ansible_facts['hostname'] }}.example.com"
+    hostname: "{{ ansible_facts['hostname'] }}"
+  tasks:
+    - name: Apply ansible-fqdn role
+      ansible.builtin.include_role:
+        name: holms.fqdn
+
+    - name: Read DNS suffix registry values
+      ansible.windows.win_reg_stat:
+        path: HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+      register: fqdn_tcpip_parameters
+
+    - name: Verify DNS suffix registry values
+      ansible.builtin.assert:
+        that:
+          - fqdn_tcpip_parameters.properties.Domain.value == 'example.com'
+          - fqdn_tcpip_parameters.properties['NV Domain'].value == 'example.com'
+        fail_msg: DNS suffix registry values do not match the FQDN domain.
+
+- name: Verify DNS suffix idempotence, second run
+  hosts: windows
+  gather_facts: true
+  vars:
+    fqdn: "{{ ansible_facts['hostname'] }}.example.com"
+    hostname: "{{ ansible_facts['hostname'] }}"
+  tasks:
+    - name: Apply ansible-fqdn role
+      ansible.builtin.include_role:
+        name: holms.fqdn
+
+    # fqdn_windows_result is registered inside the role's windows.yml.
+    - name: Verify the second run makes no changes
+      ansible.builtin.assert:
+        that:
+          - "'UNCHANGED' in fqdn_windows_result.stdout"
+        fail_msg: Re-applying the role with an unchanged hostname should be idempotent.
+
+- name: Verify rename reporting with a new hostname
+  hosts: windows
+  gather_facts: true
+  vars:
+    fqdn: win01ci.example.com
+    hostname: win01ci
+    fqdn_windows_reboot: false
+  tasks:
+    - name: Apply ansible-fqdn role with a new hostname
+      ansible.builtin.include_role:
+        name: holms.fqdn
+
+    # fqdn_windows_result is registered inside the role's windows.yml.
+    - name: Verify rename is reported as pending reboot
+      ansible.builtin.assert:
+        that:
+          - "'CHANGED' in fqdn_windows_result.stdout"
+          - "'REBOOT_REQUIRED' in fqdn_windows_result.stdout"
+        fail_msg: A hostname change should report CHANGED and REBOOT_REQUIRED.
