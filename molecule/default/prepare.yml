@@ -1,0 +1,8 @@
+---
+- name: Prepare
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: No preparation required
+      ansible.builtin.debug:
+        msg: No preparation required.

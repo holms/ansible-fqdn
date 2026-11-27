@@ -1,4 +1,31 @@
 ---
 fqdn: "{{ inventory_hostname }}"
 hostname: "{{ inventory_hostname_short }}"
-ip_address: "{{ ansible_default_ipv4.address }}"
+
+fqdn_use_full_hostname: false
+fqdn_manage_etc_hosts: true
+fqdn_manage_cloud_init: false
+fqdn_redhat_install_selinux_python: true
+fqdn_unsafe_writes: false
+fqdn_windows_reboot: false
+
+fqdn_is_container: >-
+  {{ (ansible_facts['virtualization_tech_guest'] | default([]) | intersect(['container', 'docker', 'lxc', 'openvz', 'podman', 'systemd-nspawn']) | length > 0)
+     or (ansible_facts['virtualization_type'] | default('') in ['container', 'docker', 'lxc', 'openvz', 'podman', 'systemd-nspawn']) }}
+
+fqdn_hostname: "{{ fqdn if fqdn_use_full_hostname | bool else hostname }}"
+
+ip_address: "{{ ansible_facts['default_ipv4']['address'] | default('127.0.1.1') }}"
+fqdn_hosts_ips: "{{ ([ip_address] | flatten) | select('truthy') | unique | list }}"
+fqdn_hosts_aliases: "{{ [fqdn, hostname] | select('truthy') | unique | list }}"
+
+fqdn_etc_hosts_file: /etc/hosts
+fqdn_etc_hosts_marker: ansible-fqdn
+
+fqdn_cloud_init_config_dir: /etc/cloud/cloud.cfg.d
+fqdn_cloud_init_config_file: "{{ fqdn_cloud_init_config_dir }}/99-ansible-fqdn.cfg"
+
+fqdn_selinux_python_package: >-
+  {{ 'python3-libselinux'
+     if ansible_facts['distribution_major_version'] | int >= 8
+     else ('libselinux-python3' if ansible_facts['distribution_major_version'] | int == 7 else 'libselinux-python') }}

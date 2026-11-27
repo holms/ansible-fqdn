@@ -33,3 +33,8 @@ ansible.cfg
 # Other files #
 ###############
 !empty
+
+# Ansible and Molecule #
+.ansible/
+*.retry
+.cache/

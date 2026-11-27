@@ -1,23 +1,72 @@
 ---
-- name: Set Hostname with hostname command
-  hostname:
-    name: "{{ hostname }}"
-  notify:
-    - restart hostname
-    - restart systemd-logind
+- name: FQDN | Install SELinux Python bindings on RedHat systems
+  ansible.builtin.include_tasks: redhat.yml
+  when: ansible_facts['os_family'] == 'RedHat'
 
-- name: Re-gather facts
-  action: setup
-  when: ansible_hostname != fqdn
+- name: FQDN | Validate hostname configuration
+  ansible.builtin.assert:
+    that:
+      - fqdn | length > 0
+      - fqdn is match('^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$')
+      - fqdn_hostname | length > 0
+      - fqdn_hostname is match('^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$')
+      - fqdn_hosts_aliases | length > 0
+    fail_msg: fqdn, hostname, and fqdn_hosts_aliases must contain valid DNS names.
 
-- name: Build hosts file (backups will be made)
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "^{{ ip_address }}"
-    line: "{{ ip_address }} {{ fqdn }} {{ hostname }}"
-    state: present
-    backup: yes
-  when: ip_address is defined
-  notify:
-    - restart hostname
-    - restart systemd-logind
+- name: FQDN | Configure cloud-init hostname persistence
+  when: fqdn_manage_cloud_init | bool
+  block:
+    - name: FQDN | Ensure cloud-init config directory exists
+      ansible.builtin.file:
+        path: "{{ fqdn_cloud_init_config_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: FQDN | Write cloud-init hostname configuration
+      ansible.builtin.copy:
+        dest: "{{ fqdn_cloud_init_config_file }}"
+        content: |
+          # Managed by the ansible-fqdn role.
+          preserve_hostname: true
+          manage_etc_hosts: false
+        mode: "0644"
+        backup: true
+
+- name: FQDN | Manage /etc/hosts entry
+  ansible.builtin.blockinfile:
+    path: "{{ fqdn_etc_hosts_file }}"
+    marker: "# {mark} {{ fqdn_etc_hosts_marker }}"
+    block: "{{ lookup('ansible.builtin.template', 'hosts_block.j2') }}"
+    backup: true
+    unsafe_writes: "{{ fqdn_unsafe_writes | bool }}"
+  when:
+    - fqdn_manage_etc_hosts | bool
+    - fqdn_hosts_ips | length > 0
+
+- name: FQDN | Set system hostname
+  ansible.builtin.hostname:
+    name: "{{ fqdn_hostname }}"
+  when: not fqdn_is_container | bool
+
+- name: FQDN | Set container hostname
+  when: fqdn_is_container | bool
+  block:
+    - name: FQDN | Read current container hostname
+      ansible.builtin.command: hostname
+      register: fqdn_container_hostname
+      changed_when: false
+
+    - name: FQDN | Write container /etc/hostname
+      ansible.builtin.copy:
+        dest: /etc/hostname
+        content: "{{ fqdn_hostname }}\n"
+        mode: "0644"
+        unsafe_writes: "{{ fqdn_unsafe_writes | bool }}"
+
+    - name: FQDN | Set container runtime hostname
+      ansible.builtin.command:
+        argv:
+          - hostname
+          - "{{ fqdn_hostname }}"
+      when: fqdn_container_hostname.stdout != fqdn_hostname
+      changed_when: fqdn_container_hostname.stdout != fqdn_hostname

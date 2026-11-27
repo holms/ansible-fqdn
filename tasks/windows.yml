@@ -1,7 +1,30 @@
 ---
-- name: fqdn | Set details via powershell script
-  script: files/set_domain.ps1 --NewName "{{ hostname }}" --NewFQDN "{{ fqdn }}"
+- name: FQDN | Validate Windows hostname configuration
+  ansible.builtin.assert:
+    that:
+      - fqdn | length > 0
+      - fqdn is match('^[^.]+[.].+$')
+      - fqdn is match('^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$')
+      - hostname | length > 0
+      - hostname is match('^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?$')
+    fail_msg: fqdn must be a DNS name with a suffix and hostname must be a valid short name.
 
-- name: fqdn | Re-gather facts
-  action: setup
-  when: ansible_hostname != fqdn
+- name: FQDN | Set Windows hostname and DNS suffix
+  ansible.builtin.script: files/set_domain.ps1 --NewName "{{ hostname }}" --NewFQDN "{{ fqdn }}"
+  register: fqdn_windows_result
+  changed_when: "'CHANGED' in fqdn_windows_result.stdout"
+
+- name: FQDN | Warn when Windows reboot is required
+  ansible.builtin.debug:
+    msg: >-
+      Windows hostname or DNS suffix changes require a reboot.
+      Set fqdn_windows_reboot=true to reboot automatically.
+  when:
+    - not fqdn_windows_reboot | bool
+    - "'REBOOT_REQUIRED' in fqdn_windows_result.stdout"
+
+- name: FQDN | Reboot Windows when required
+  ansible.builtin.include_tasks: windows_reboot.yml
+  when:
+    - fqdn_windows_reboot | bool
+    - "'REBOOT_REQUIRED' in fqdn_windows_result.stdout"

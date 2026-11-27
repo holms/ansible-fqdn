@@ -1,7 +1,6 @@
 ---
-- name: Redhat | Install libselinux-python
-  yum:
-    name: libselinux-python
-
-- name: Redhat | Update sysconfig
-  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ fqdn }}" regexp="HOSTNAME="
+- name: FQDN | Install SELinux Python bindings
+  ansible.builtin.package:
+    name: "{{ fqdn_selinux_python_package }}"
+    state: present
+  when: fqdn_redhat_install_selinux_python | bool

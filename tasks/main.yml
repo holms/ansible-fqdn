@@ -1,16 +1,8 @@
 ---
-- name: fqdn | Configure Debian
-  include: debian.yml
-  when: ansible_os_family == 'Debian'
+- name: FQDN | Configure Linux
+  ansible.builtin.include_tasks: linux.yml
+  when: ansible_facts['system'] == 'Linux'
 
-- name: fqdn | Configure Redhat
-  include: redhat.yml
-  when: ansible_os_family == 'RedHat'
-
-- name: fqdn | Configure Linux
-  include: linux.yml
-  when: ansible_system in  [ 'Linux' ]
-
-- name: fqdn | Configure Windows
-  include: windows.yml
-  when: ansible_system in  [ 'Win32NT' ]
+- name: FQDN | Configure Windows
+  ansible.builtin.include_tasks: windows.yml
+  when: ansible_facts['os_family'] == 'Windows'

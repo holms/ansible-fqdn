@@ -1,0 +1,3 @@
+{% for ip in fqdn_hosts_ips -%}
+{{ ip }} {{ fqdn_hosts_aliases | join(' ') }}
+{% endfor %}
