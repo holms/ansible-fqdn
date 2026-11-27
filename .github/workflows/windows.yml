@@ -47,6 +47,20 @@ jobs:
           $url = "https://raw.githubusercontent.com/ansible/ansible-documentation/$sha/examples/scripts/ConfigureRemotingForAnsible.ps1"
           $scriptBlock = [ScriptBlock]::Create((New-Object System.Net.WebClient).DownloadString($url))
           & $scriptBlock -Verbose -ForceNewSSLCert 4>&1
+          # The script's firewall rules may not cover the Hyper-V vEthernet
+          # interface WSL traffic arrives on; allow both ports explicitly.
+          foreach ($port in 5985, 5986) {
+            $ruleName = "Ansible CI WinRM $port"
+            if (-not (Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue)) {
+              New-NetFirewallRule -DisplayName $ruleName -Direction Inbound -Action Allow -Protocol TCP -LocalPort $port -Profile Any | Out-Null
+            }
+          }
+          Write-Output "=== WinRM listeners ==="
+          winrm enumerate winrm/config/listener
+          Write-Output "=== WinRM service auth ==="
+          winrm get winrm/config/service/auth
+          Write-Output "=== Listening sockets ==="
+          netstat -ano | Select-String ':598[56].*LISTENING'
 
       - name: Set up WSL controller
         uses: Vampire/setup-wsl@v7.2.0
@@ -77,4 +91,8 @@ jobs:
           # In WSL2 NAT mode the Windows host is the default gateway.
           export WINDOWS_CI_HOST="$(ip route show default | awk '{print $3}')"
           echo "Connecting to Windows host at $WINDOWS_CI_HOST"
+          echo "=== HTTP probe ==="
+          curl -s --max-time 10 -o /dev/null -w "%{http_code}\n" "http://$WINDOWS_CI_HOST:5985/wsman" || echo "http probe failed"
+          echo "=== HTTPS probe ==="
+          curl -sk --max-time 10 -o /dev/null -w "%{http_code}\n" "https://$WINDOWS_CI_HOST:5986/wsman" || echo "https probe failed"
           ~/ansible-venv/bin/ansible-playbook -i tests/windows/inventory.yml tests/windows/test.yml -vv
