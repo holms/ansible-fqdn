@@ -1,0 +1,25 @@
+---
+- name: Create container instances
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Create containers from inventory
+      containers.podman.podman_container:
+        hostname: "{{ item }}"
+        name: "{{ item }}"
+        image: "{{ hostvars[item]['container_image'] }}"
+        command: "{{ hostvars[item]['container_command'] | default('sleep 1d') }}"
+        privileged: "{{ hostvars[item]['container_privileged'] | default(false) }}"
+        volumes: "{{ hostvars[item]['container_volumes'] | default(omit) }}"
+        capabilities: "{{ hostvars[item]['container_capabilities'] | default(omit) }}"
+        cgroupns: "{{ hostvars[item]['container_cgroupns'] | default(omit) }}"
+        systemd: "{{ hostvars[item]['container_systemd'] | default('true') }}"
+        log_driver: "{{ hostvars[item]['container_log_driver'] | default('json-file') }}"
+        state: started
+      loop: "{{ groups['molecule'] }}"
+
+    - name: Wait for containers to be ready
+      ansible.builtin.wait_for_connection:
+        timeout: 60
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['molecule'] }}"

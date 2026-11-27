@@ -1,0 +1,13 @@
+---
+fqdn: "{{ inventory_hostname }}.example.com"
+hostname: "{{ inventory_hostname }}"
+fqdn_use_full_hostname: false
+fqdn_manage_cloud_init: true
+fqdn_unsafe_writes: true
+
+container_privileged: true
+container_volumes:
+  - /sys/fs/cgroup:/sys/fs/cgroup:rw
+container_cgroupns: host
+container_systemd: "true"
+container_log_driver: json-file

@@ -1,38 +1,61 @@
 #!powershell
-# <license>
-
 # WANT_JSON
 # POWERSHELL_COMMON
-param([string]$NewFQDN, [string]$NewName)
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$NewFQDN,
 
-$TCPIP_PARAMS = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\"
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$NewName
+)
 
-# exit on error
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 
-# work out Domain
-$NewDomain = $NewFQDN.clone() -replace "^[^.]*.", ""
-
-# debug info
-"fqdn " + $NewFQDN + " Name  " + $NewName + " Domain " + $NewDomain
-
-# set Domain
-$OldDomain = (Get-ItemProperty -path $TCPIP_PARAMS)."Domain"
-
-if ($OldDomain.ToUpper() -NotMatch $NewDomain.ToUpper())
-{
-    "Setting Domain to " + $NewDomain + " was " + $OldDomain
-    Set-ItemProperty $TCPIP_PARAMS -name Domain -Value $NewDomain
-    Set-ItemProperty $TCPIP_PARAMS -name "NV Domain" -Value $NewDomain
+$normalizedFqdn = $NewFQDN.Trim().TrimEnd('.')
+if ($normalizedFqdn -notmatch '^[^.]+\..+$') {
+    throw "NewFQDN must include a DNS suffix, for example host.example.com."
 }
 
-# set hostNewName
-$OldName = (gwmi win32_computersystem -Property DNSHostName).DNSHostName
-
-if ($OldName.ToLower().Trim() -NotMatch $NewName.ToLower().Trim())
-{
-    "Setting name to " + $NewName + " was " + $OldName
-    Rename-Computer -NewName $NewName -Force -PassThru
+$newDomain = $normalizedFqdn -replace '^[^.]+\.', ''
+$computer = Get-CimInstance -ClassName Win32_ComputerSystem
+$currentName = $computer.DNSHostName
+if ([string]::IsNullOrWhiteSpace($currentName)) {
+    $currentName = $computer.Name
 }
 
-exit $LastExitCode
+$changed = $false
+
+if ([bool]$computer.PartOfDomain) {
+    if ($computer.Domain -and $computer.Domain -ine $newDomain) {
+        throw "Computer is joined to '$($computer.Domain)', which does not match FQDN domain '$newDomain'."
+    }
+    Write-Output "Computer is domain-joined; DNS suffix is managed by Active Directory."
+}
+else {
+    $tcpipParams = 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters'
+    foreach ($propertyName in @('Domain', 'NV Domain')) {
+        $currentValue = (Get-ItemProperty -Path $tcpipParams -Name $propertyName -ErrorAction SilentlyContinue).$propertyName
+        if ($currentValue -ne $newDomain) {
+            Set-ItemProperty -Path $tcpipParams -Name $propertyName -Value $newDomain
+            $changed = $true
+        }
+    }
+}
+
+if ($currentName -ine $NewName) {
+    Rename-Computer -NewName $NewName -Force -PassThru | Out-Null
+    $changed = $true
+}
+
+if ($changed) {
+    Write-Output 'CHANGED'
+    Write-Output 'REBOOT_REQUIRED'
+}
+else {
+    Write-Output 'UNCHANGED'
+}
+
+exit 0

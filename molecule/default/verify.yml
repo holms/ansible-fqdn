@@ -1,0 +1,36 @@
+---
+- name: Verify
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: Read container hostname file
+      ansible.builtin.slurp:
+        src: /etc/hostname
+      register: fqdn_etc_hostname
+
+    - name: Read container hosts file
+      ansible.builtin.slurp:
+        src: /etc/hosts
+      register: fqdn_etc_hosts
+
+    - name: Get runtime hostname
+      ansible.builtin.command: hostname
+      register: fqdn_runtime_hostname
+      changed_when: false
+
+    - name: Read cloud-init configuration
+      ansible.builtin.slurp:
+        src: /etc/cloud/cloud.cfg.d/99-ansible-fqdn.cfg
+      register: fqdn_cloud_init_config
+
+    - name: Verify hostname configuration
+      ansible.builtin.assert:
+        that:
+          - fqdn_etc_hostname.content | b64decode | trim == hostname
+          - fqdn_runtime_hostname.stdout == hostname
+          - fqdn_etc_hosts.content | b64decode is search('BEGIN ansible-fqdn')
+          - fqdn_etc_hosts.content | b64decode is search('END ansible-fqdn')
+          - fqdn_etc_hosts.content | b64decode is search(fqdn ~ ' ' ~ hostname)
+          - "fqdn_cloud_init_config.content | b64decode is search('preserve_hostname: true')"
+          - "fqdn_cloud_init_config.content | b64decode is search('manage_etc_hosts: false')"
+        fail_msg: Hostname or hosts configuration did not match expected values.

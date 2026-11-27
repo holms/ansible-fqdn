@@ -1,9 +1,0 @@
-# pre test file for fqdn
----
-- name: pre | fix for target uses selinux but python bindings aren't installed!
-  yum:
-    name: "{{ item }}"
-    state: present
-  when: ansible_os_family == 'RedHat'
-  with_items:
-    - libselinux-python

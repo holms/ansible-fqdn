@@ -1,0 +1,8 @@
+---
+- name: Cleanup
+  hosts: molecule
+  gather_facts: false
+  tasks:
+    - name: No cleanup required
+      ansible.builtin.debug:
+        msg: No cleanup required.

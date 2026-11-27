@@ -1,25 +1,34 @@
 ---
 galaxy_info:
-    author: Roman Gorodeckij
-    description: Set FQDN and hostname
-    license: MIT
-    min_ansible_version: 2.0
-    platforms:
-        - name: EL
-          versions:
-              - all
-        - name: Ubuntu
-          versions:
-              - all
-        - name: Debian
-          versions:
-              - all
-        - name: Windows
-          versions:
-              - all
-    categories:
-        - networking
-        - system
+  role_name: fqdn
+  namespace: holms
+  author: Roman Gorodeckij
+  description: Configure a system hostname and FQDN name resolution on Linux and Windows.
+  license: MIT
+  min_ansible_version: "2.16"
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Windows
+      versions:
+        - all
+  galaxy_tags:
+    - networking
+    - system
+    - hostname
+    - fqdn
+    - cloudinit
+    - linux
+    - windows
 
 dependencies: []
-
