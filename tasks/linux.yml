@@ -51,11 +51,6 @@
 - name: FQDN | Set container hostname
   when: fqdn_is_container | bool
   block:
-    - name: FQDN | Read current container hostname
-      ansible.builtin.command: hostname
-      register: fqdn_container_hostname
-      changed_when: false
-
     - name: FQDN | Write container /etc/hostname
       ansible.builtin.copy:
         dest: /etc/hostname
@@ -68,5 +63,8 @@
         argv:
           - hostname
           - "{{ fqdn_hostname }}"
-      when: fqdn_container_hostname.stdout != fqdn_hostname
-      changed_when: fqdn_container_hostname.stdout != fqdn_hostname
+      # The hostname binary is not installed on minimal RedHat-family
+      # systems, but this only runs when the runtime hostname differs
+      # from the target, which is rare for containers.
+      when: ansible_facts['hostname'] != fqdn_hostname
+      changed_when: ansible_facts['hostname'] != fqdn_hostname
