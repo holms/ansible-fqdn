@@ -14,6 +14,14 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Exit nonzero on runtime failures. Errors during a '&' invocation can
+# otherwise leave the wrapping PowerShell process with exit code 0, which
+# makes the Ansible script module report success for a failed script.
+trap {
+    Write-Error -ErrorRecord $_
+    exit 1
+}
+
 $normalizedFqdn = $NewFQDN.Trim().TrimEnd('.')
 if ($normalizedFqdn -notmatch '^[^.]+\..+$') {
     throw "NewFQDN must include a DNS suffix, for example host.example.com."

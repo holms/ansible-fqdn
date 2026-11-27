@@ -10,7 +10,7 @@
     fail_msg: fqdn must be a DNS name with a suffix and hostname must be a valid short name.
 
 - name: FQDN | Set Windows hostname and DNS suffix
-  ansible.builtin.script: files/set_domain.ps1 --NewName "{{ hostname }}" --NewFQDN "{{ fqdn }}"
+  ansible.builtin.script: files/set_domain.ps1 -NewName "{{ hostname }}" -NewFQDN "{{ fqdn }}"
   register: fqdn_windows_result
   changed_when: "'CHANGED' in fqdn_windows_result.stdout"
 
