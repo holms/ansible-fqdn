@@ -27,16 +27,17 @@ Configure a system hostname and FQDN name resolution on Linux and Windows.
 | `fqdn` | `inventory_hostname` | Fully qualified domain name. |
 | `hostname` | `inventory_hostname_short` | Short hostname. |
 | `ip_address` | `ansible_facts['default_ipv4']['address']`, falling back to `127.0.1.1` | IPv4 address used for `/etc/hosts`. May be a list. |
-| `fqdn_hosts_ips` | Derived from `ip_address` | IP addresses written to `/etc/hosts`. |
+| `fqdn_hosts_ips` | Derived from `ip_address` (and `fqdn_ipv6_address` when IPv6 is enabled) | IP addresses written to `/etc/hosts`. |
 | `fqdn_hosts_aliases` | `[fqdn, hostname]` | Names written after each IP in `/etc/hosts`. |
 | `fqdn_use_full_hostname` | `false` | Use `fqdn` as the system hostname instead of `hostname`. |
 | `fqdn_manage_etc_hosts` | `true` | Manage a marked block in `/etc/hosts`. |
 | `fqdn_manage_cloud_init` | `false` | Write cloud-init configuration to preserve the hostname and disable cloud-init management of `/etc/hosts`. |
+| `fqdn_manage_ipv6` | `false` | Add the host's `default_ipv6` address to `/etc/hosts` alongside the IPv4 entries. |
 | `fqdn_unsafe_writes` | `false` | Permit unsafe writes for bind-mounted `/etc/hosts` and `/etc/hostname` files, as found in containers. |
 | `fqdn_redhat_install_selinux_python` | `true` | Install SELinux Python bindings on RedHat-family systems. |
 | `fqdn_windows_reboot` | `false` | Reboot Windows automatically when required. Requires the `ansible.windows` collection. |
 
-Advanced overrides: `fqdn_etc_hosts_file`, `fqdn_etc_hosts_marker`, `fqdn_cloud_init_config_dir`, `fqdn_cloud_init_config_file`, and `fqdn_selinux_python_package`.
+Advanced overrides: `fqdn_ipv6_address`, `fqdn_etc_hosts_file`, `fqdn_etc_hosts_marker`, `fqdn_cloud_init_config_dir`, `fqdn_cloud_init_config_file`, and `fqdn_selinux_python_package`.
 
 ## Examples
 
@@ -58,6 +59,20 @@ Containers and cloud images:
 vars:
   fqdn_unsafe_writes: true
   fqdn_manage_cloud_init: true
+```
+
+IPv6:
+
+```yaml
+vars:
+  fqdn_manage_ipv6: true
+```
+
+This writes both the IPv4 and IPv6 addresses of the host to `/etc/hosts`:
+
+```
+192.0.2.10 web01.example.com web01
+2001:db8::10 web01.example.com web01
 ```
 
 Windows:

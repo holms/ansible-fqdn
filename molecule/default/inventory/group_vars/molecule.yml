@@ -3,7 +3,13 @@ fqdn: "{{ inventory_hostname }}.example.com"
 hostname: "{{ inventory_hostname }}"
 fqdn_use_full_hostname: false
 fqdn_manage_cloud_init: true
+fqdn_manage_ipv6: true
 fqdn_unsafe_writes: true
+
+# Simulate a host with an IPv6 default address. Role defaults have the
+# lowest precedence, so overriding fqdn_ipv6_address exercises the same
+# fqdn_hosts_ips composition logic as a real default_ipv6 fact.
+fqdn_ipv6_address: fd00:42::1
 
 container_privileged: true
 container_volumes:

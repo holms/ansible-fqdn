@@ -5,6 +5,7 @@ hostname: "{{ inventory_hostname_short }}"
 fqdn_use_full_hostname: false
 fqdn_manage_etc_hosts: true
 fqdn_manage_cloud_init: false
+fqdn_manage_ipv6: false
 fqdn_redhat_install_selinux_python: true
 fqdn_unsafe_writes: false
 fqdn_windows_reboot: false
@@ -16,7 +17,8 @@ fqdn_is_container: >-
 fqdn_hostname: "{{ fqdn if fqdn_use_full_hostname | bool else hostname }}"
 
 ip_address: "{{ ansible_facts['default_ipv4']['address'] | default('127.0.1.1') }}"
-fqdn_hosts_ips: "{{ ([ip_address] | flatten) | select('truthy') | unique | list }}"
+fqdn_ipv6_address: "{{ ansible_facts['default_ipv6']['address'] | default('') }}"
+fqdn_hosts_ips: "{{ (([ip_address] + ([fqdn_ipv6_address] if fqdn_manage_ipv6 | bool else [])) | flatten) | select('truthy') | unique | list }}"
 fqdn_hosts_aliases: "{{ [fqdn, hostname] | select('truthy') | unique | list }}"
 
 fqdn_etc_hosts_file: /etc/hosts
